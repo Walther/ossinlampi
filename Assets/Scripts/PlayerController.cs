@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public Transform    cannonPivot;
 
     public float 		controlForce 		= 4.0f;
-    public float        steerAmount         = 1f;
+    public float        steerAmount         = 5f;
 
 	private float		_currentHp;
 
@@ -37,8 +37,25 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
         float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
+//        float keepUpright = transform.rotation.eulerAngles;
+        float uprightX = 0f;
 
-        body.AddForce(control*Vector3.right);
+        float deltaAngle = AngleUtils.ClampAngle180(body.transform.localRotation.eulerAngles.x);
+
+
+
+//        Debug.Log(string.Format("original: {0}, originalClamped: {1}, deltaClamped: {2}", body.transform.localRotation.eulerAngles.x, xAngle, deltaAngle));
+
+
+        body.AddRelativeForce(control*Vector3.right);
+
+        Vector3 targetEuler = body.transform.localRotation.eulerAngles;
+        targetEuler.x = 0;
+
+//        body.AddRelativeTorque(deltaAngle, 0f, 0f);
+//        body.transform.localRotation = Quaternion.RotateTowards(body.transform.localRotation, Quaternion.Euler(targetEuler), 100f);
+            
+
         body.AddTorque(0f, rotate, 0f);
 
         if (Input.GetButtonDown("Fire1"))
