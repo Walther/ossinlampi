@@ -20,6 +20,14 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private float		_currentHp;
 
+	public float CurrentHp
+	{
+		get
+		{
+			return _currentHp;
+		}
+	}
+
 	private void Awake ()
 	{
 		_currentHp = maxHp;

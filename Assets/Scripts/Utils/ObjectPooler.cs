@@ -58,4 +58,14 @@ public class ObjectPooler : MonoBehaviour
 
 		return null;
 	}
+
+	public void ResetObjectPool ()
+	{
+		int numPooledObjects = _pooledGameObjects.Count;
+
+		for (int i = 0; i < numPooledObjects; ++i)
+		{
+			_pooledGameObjects[i].SetActive (false);
+		}
+	}
 }
