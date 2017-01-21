@@ -42,8 +42,15 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         float deltaAngle = AngleUtils.ClampAngle180(body.transform.localRotation.eulerAngles.x);
 
-        Debug.Log(string.Format("left: ({0},{1}), right: ({2},{3})", CrossPlatformInputManager.GetAxis("Horizontal Left"), CrossPlatformInputManager.GetAxis("Vertical Left"), CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right")));
+        if (CrossPlatformInputManager.GetButton("Fire Left"))
+        {
+            Debug.Log(string.Format("left: ({0},{1})", CrossPlatformInputManager.GetAxis("Horizontal Left"), CrossPlatformInputManager.GetAxis("Vertical Left")));
+        }
 
+        if (CrossPlatformInputManager.GetButton("Fire Right"))
+        {
+            Debug.Log(string.Format("right: ({0},{1})", CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right")));
+        }
 
 
 
