@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     public Transform    cannonPivot;
 
     public float 		controlForce 		= 4.0f;
+    public float        steerAmount         = 1f;
 
 	private float		_currentHp;
 
@@ -34,8 +35,11 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private void Update () 
     {
-        float control = controlForce * CrossPlatformInputManager.GetAxis("Horizontal");
+        float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
+        float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
+
         body.AddForce(control*Vector3.right);
+        body.AddTorque(0f, rotate, 0f);
 
         if (Input.GetButtonDown("Fire1"))
         {
