@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using UnityStandardAssets.CrossPlatformInput;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
 
-    public int playerNumber;
     public Rigidbody body;
 
     public GameObject cannonballPrefab;
 
     public Transform cannonballSpawn;
+
+    public float controlForce = 4f;
 
     private void Start()
     {
@@ -22,12 +25,13 @@ public class PlayerController : MonoBehaviour {
 
 	void Update () 
     {
-        float control = Input.GetAxis(string.Format("P{0} Horizontal", playerNumber));
-            
-        body.AddRelativeForce(control*transform.forward);
+        
+        float control = controlForce * CrossPlatformInputManager.GetAxis("Horizontal");
+//        Debug.Log(string.Format("h {0}, v {1}", CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical")));
+//        Debug.Log(string.Format("CPIM: {0}, regular: {1}", control, Input.GetAxis("Horizontal")));    
+        body.AddForce(control*Vector3.right);
 
-
-        if (Input.GetButtonDown(string.Format("P{0} Fire", playerNumber)))
+        if (Input.GetButtonDown("Fire1"))
         {
             Fire();
         }
