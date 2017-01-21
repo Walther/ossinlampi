@@ -4,6 +4,19 @@ using UnityEngine;
 
 public class EnemyControllerBase : MonoBehaviour
 {
+	protected enum MovementAxis
+	{
+		X_AXIS = 0,
+		Y_AXIS = 1,
+		Z_AXIS = 2
+	}
+
+	[Header("Movement")]
+	[SerializeField]
+	protected MovementAxis _movementAxis = MovementAxis.X_AXIS;
+	[SerializeField]
+	protected float _movementSpeed = 2.0f;
+
 	[Header("Audio")]
 	[SerializeField]
 	protected AudioSource _audioSource;
@@ -24,6 +37,10 @@ public class EnemyControllerBase : MonoBehaviour
 	[SerializeField]
 	[Tooltip ("Damage given to player on collision")]
 	protected float _damageGiven = 100.0f;
+
+	virtual protected void Update ()
+	{
+	}
 
 	virtual protected void OnCollisionEnter (Collision other)
 	{
