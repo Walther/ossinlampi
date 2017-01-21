@@ -15,7 +15,7 @@ public class EnemyControllerBase : MonoBehaviour
 	[SerializeField]
 	protected MovementAxis _movementAxis = MovementAxis.X_AXIS;
 	[SerializeField]
-	protected float _movementSpeed = 2.0f;
+	protected float _movementSpeed = -2.0f;
 
 	[Header("Audio")]
 	[SerializeField]

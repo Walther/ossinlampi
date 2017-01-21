@@ -46,6 +46,7 @@ public class ObjectPooler : MonoBehaviour
 		{
 			if (!_pooledGameObjects[i].activeInHierarchy)
 			{
+                _pooledGameObjects[i].SetActive(true);
 				return _pooledGameObjects[i];
 			}
 		}
