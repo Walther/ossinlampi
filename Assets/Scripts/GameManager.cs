@@ -62,4 +62,15 @@ public class GameManager : Singleton<GameManager>
 
 		_currentState = newState;
 	}
+
+	public void Update ()
+	{
+		if (_currentState == GameState.PLAYING)
+		{
+			if (!WaveManager.Instance.HasActiveWave)
+			{
+				WaveManager.Instance.CreateNewWave ();
+			}
+		}
+	}
 }
