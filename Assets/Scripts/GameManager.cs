@@ -24,6 +24,7 @@ public class GameManager : Singleton<GameManager>
 	private PlayerController	_player				= null;
 
 	private GameState 			_currentState 		= GameState.NONE;
+	private int					_currentScore		= 0;
 
 	public GameState CurrentState
 	{
@@ -63,8 +64,9 @@ public class GameManager : Singleton<GameManager>
 		else if (_currentState == GameState.START_MENU &&
 			newState == GameState.PLAYING)
 		{
-			// Set score to 0
-			_gameUIView.SetScore (0);
+			// Reset
+			_currentScore = 0;
+			ResetGameUIView ();
 
 			// Transition start menu out and game UI in
 			_startMenuUIView
@@ -75,6 +77,9 @@ public class GameManager : Singleton<GameManager>
 			// Stop background and play game start
 			AudioManager.Instance.StopBackgroundClip ();
 			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.GAME_START_SOUND);
+
+			// Start spawning enemies
+			EnemyManager.Instance.StartSpawningEnemies ();
 		}
 		// If the player died i.e. game over
 		else if (_currentState == GameState.PLAYING &&
@@ -89,10 +94,12 @@ public class GameManager : Singleton<GameManager>
 			newState == GameState.START_MENU)
 		{
 			// Clear any ongoing waves
-			WaveManager.Instance.ClearWaves ();
+			EnemyManager.Instance.ClearEnemies ();
 
-			// Reset the player
+			// Reset
 			CurrentPlayer.Respawn ();
+			_currentScore = 0;
+			ResetGameUIView ();
 
 			// Transition start menu out and game UI in
 			_highscoreUIView
@@ -107,15 +114,21 @@ public class GameManager : Singleton<GameManager>
 		_currentState = newState;
 	}
 
-	public void Update ()
+	public void DamagePlayer (float damage)
 	{
-		if (_currentState == GameState.PLAYING)
-		{
-			if (!WaveManager.Instance.HasActiveWave)
-			{
-				Debug.Log ("GameManager Update: Creating a new wave");
-				WaveManager.Instance.CreateNewWave ();
-			}
-		}
+		CurrentPlayer.TakeDamage (damage);
+		_gameUIView.SetHp (CurrentPlayer.CurrentHp);
+	}
+
+	public void AddScore (int score)
+	{
+		_currentScore += score;
+		_gameUIView.SetScore (_currentScore);
+	}
+
+	private void ResetGameUIView ()
+	{
+		_gameUIView.SetHp (CurrentPlayer.CurrentHp);
+		_gameUIView.SetScore (0);
 	}
 }

@@ -20,7 +20,7 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	[Header("Damage Controls")]
 	[SerializeField]
 	[Tooltip ("Hit points of the enemy")]
-	protected float _hp = 1000.0f;
+	protected float _maxHp = 1000.0f;
 	[SerializeField]
 	[Tooltip ("Damage taken from player shots")]
 	protected float _damageTaken = 500.0f;
@@ -28,8 +28,14 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	[Tooltip ("Damage given to player on collision")]
 	protected float _damageGiven = 100.0f;
 
+	[Header("Score")]
+	[SerializeField]
+	[Tooltip ("Score award for killing this enemy")]
+	protected int _killScore = 1000;
+
 	protected Transform _targetTransform = null;
 	protected Rigidbody _enemyRigidbody = null;
+	protected float _currentHp = 0.0f;
 
 	virtual protected Transform TargetTransform
 	{
@@ -56,7 +62,7 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 			return _enemyRigidbody;
 		}
 	}
-
+		
 	virtual protected void FixedUpdate ()
 	{
 		if (IsAlive ())
@@ -66,6 +72,11 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 			transform.LookAt (targetPosition);
 			EnemyRigidbody.AddForce (_movementSpeed * movementDir);
 		}
+	}
+
+	virtual protected void OnEnable ()
+	{
+		_currentHp = _maxHp;
 	}
 
 	virtual protected void OnCollisionEnter (Collision other)
@@ -88,11 +99,12 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	{
 		Debug.LogFormat ("EnemyControllerBase TakeDamage: {0}", damage);
 
-		_hp -= damage;
+		_maxHp -= damage;
 
-		if (_hp <= 0.0f)
+		if (_maxHp <= 0.0f)
 		{
 			AudioManager.Instance.PlayClip (_dieAudioClip);
+			GameManager.Instance.AddScore (_killScore);
 			Die ();
 		}
 		else
@@ -106,18 +118,18 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	virtual protected void GiveDamage (float damage)
 	{
 		Debug.LogFormat ("EnemyControllerBase GiveDamage: {0}", damage);
-		GameManager.Instance.CurrentPlayer.TakeDamage (damage);
+		GameManager.Instance.DamagePlayer (damage);
 		AudioManager.Instance.PlayClip (_giveDamageAudioClip);
-		GameObject.Destroy (this.gameObject);
+		gameObject.SetActive (false);
 	}
 
 	virtual protected void Die ()
 	{
-		GameObject.Destroy (this.gameObject);
+		gameObject.SetActive (false);
 	}
 
 	virtual public bool IsAlive ()
 	{
-		return _hp > 0f;
+		return _maxHp > 0f && gameObject.activeInHierarchy;
 	}
 }

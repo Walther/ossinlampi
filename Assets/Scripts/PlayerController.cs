@@ -24,6 +24,13 @@ public class PlayerController : MonoBehaviour, IDamageable
     public MachineGun  _leftGun;
     public MachineGun  _rightGun;
 
+	public float CurrentHp
+	{
+		get
+		{
+			return _currentHp;
+		}
+	}
 
 	private void Awake ()
 	{
