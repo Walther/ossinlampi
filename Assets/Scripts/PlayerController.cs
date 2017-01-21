@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
 
     public Rigidbody body;
 
-    public GameObject cannonballPrefab;
+    public ObjectPooler cannonballPooler;
 
     public Transform cannonballSpawn;
 
@@ -57,9 +57,10 @@ public class PlayerController : MonoBehaviour
     private void Fire(float angle, float power)
     {        
         Debug.Log(string.Format("Shooting with angle {0}, power {1}", angle, power));
-        GameObject cannonball = Instantiate(cannonballPrefab, cannonballSpawn.position, cannonballSpawn.transform.rotation);
+        GameObject cannonball = cannonballPooler.GetPooledObject();
+        cannonball.transform.position = cannonballSpawn.position;
+        cannonball.transform.rotation = cannonballSpawn.transform.rotation;
         Vector3 force = new Vector3(0f, power * Mathf.Sin(Mathf.Deg2Rad*angle), power * Mathf.Cos(Mathf.Deg2Rad*angle));
-//        Debug.Log(force);
         cannonball.GetComponent<Rigidbody>().AddRelativeForce(force, ForceMode.Impulse);
     }
 }
