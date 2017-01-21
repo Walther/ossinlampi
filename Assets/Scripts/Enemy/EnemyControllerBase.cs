@@ -38,8 +38,14 @@ public class EnemyControllerBase : MonoBehaviour
 	[Tooltip ("Damage given to player on collision")]
 	protected float _damageGiven = 100.0f;
 
-	virtual protected void Update ()
+	virtual protected void FixedUpdate ()
 	{
+		if (IsAlive ())
+		{
+			Vector3 position = transform.position;
+			position[(int)_movementAxis] += Time.fixedDeltaTime * _movementSpeed;
+			transform.position = position;
+		}
 	}
 
 	virtual protected void OnCollisionEnter (Collision other)
@@ -81,7 +87,8 @@ public class EnemyControllerBase : MonoBehaviour
 		GameObject.Destroy (this.gameObject);
 	}
 
-	public bool isAlive() {
+	public bool IsAlive ()
+	{
 		return _hp > 0f;
 	}
 }

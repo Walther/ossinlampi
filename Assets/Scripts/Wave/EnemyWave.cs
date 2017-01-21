@@ -27,6 +27,6 @@ public class EnemyWave
 	/// <returns><c>true</c> if this wave is complete; otherwise, <c>false</c>.</returns>
 	public bool IsComplete ()
 	{
-		return !_enemies.Any (e => e.isAlive ());
+		return !_enemies.Any (e => e.IsAlive ());
 	}
 }
