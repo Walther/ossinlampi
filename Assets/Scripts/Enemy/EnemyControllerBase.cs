@@ -11,8 +11,6 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 
 	[Header("Audio")]
 	[SerializeField]
-	protected AudioSource _audioSource;
-	[SerializeField]
 	protected AudioClip _takeDamageAudioClip;
 	[SerializeField]
 	protected AudioClip _giveDamageAudioClip;
@@ -94,7 +92,12 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 
 		if (_hp <= 0.0f)
 		{
+			AudioManager.Instance.PlayClip (_dieAudioClip);
 			Die ();
+		}
+		else
+		{
+			AudioManager.Instance.PlayClip (_takeDamageAudioClip);
 		}
 	}
 
@@ -104,6 +107,7 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	{
 		Debug.LogFormat ("EnemyControllerBase GiveDamage: {0}", damage);
 		GameManager.Instance.CurrentPlayer.TakeDamage (damage);
+		AudioManager.Instance.PlayClip (_giveDamageAudioClip);
 		GameObject.Destroy (this.gameObject);
 	}
 
@@ -112,7 +116,7 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 		GameObject.Destroy (this.gameObject);
 	}
 
-	public bool IsAlive ()
+	virtual public bool IsAlive ()
 	{
 		return _hp > 0f;
 	}

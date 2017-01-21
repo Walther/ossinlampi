@@ -90,7 +90,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 		return _currentHp > 0.0f;
 	}
 
-    private void Fire()
+    private void Fire ()
     {
 		Fire (Random.Range (0f, 90f), Random.Range (5f, 30f));
     }
@@ -103,12 +103,12 @@ public class PlayerController : MonoBehaviour, IDamageable
         float scaled = voiceEvent.volume * 200f;
         Debug.Log(string.Format("freq: {0} (clamped: {2}), vol: {1} (scaled: {3})", voiceEvent.frequency, voiceEvent.volume, clamped, scaled));
 
-        Fire(20f + 90f*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
+        Fire (20f + 90f*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
     }
 
     private void Fire (float angle, float power)
     {        
-		if (IsAlive ())
+		if (IsAlive () && GameManager.Instance.CurrentState == GameState.PLAYING)
 		{
 	        Debug.LogFormat ("PlayerController Fire: Shooting with angle {0}, power {1}", angle, power);
 	        GameObject cannonball = cannonballPooler.GetPooledObject();
@@ -118,6 +118,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	        cannonball.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
             Vector3 newRot = new Vector3(cannonPivot.rotation.eulerAngles.x, 0f, angle - 90f);
             cannonPivot.rotation = Quaternion.Euler(newRot);
+			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.PLAYER_FIRE);
 		}
     }
 }

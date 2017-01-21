@@ -8,7 +8,8 @@ public class AudioManager : Singleton<AudioManager>
 	public enum GameAudioClip
 	{
 		MENU_BACKGROUND_MUSIC,
-		GAME_START_SOUND
+		GAME_START_SOUND,
+		PLAYER_FIRE
 	}
 
 	[System.Serializable]
@@ -17,13 +18,18 @@ public class AudioManager : Singleton<AudioManager>
 		public GameAudioClip gameAudioClip;
 		public AudioClip audioClip;
 	}
-
+		
 	// Dictionaries don't serialize well in Unity inspector - use array and postprocess
 	// to dictionary
 	[SerializeField]
 	private AudioManagerClip[] _gameAudioClipArray;
+	[SerializeField]
+	private GameObject _audioSourcePrefab;
+	[SerializeField]
+	private AudioSource _backgroundAudioSource;
 
 	private Dictionary<GameAudioClip, AudioClip> _gameAudioClips;
+	private List<GameObject> _audioSourcePool;
 
 	private Dictionary<GameAudioClip, AudioClip> GameAudioClips
 	{
@@ -53,18 +59,62 @@ public class AudioManager : Singleton<AudioManager>
 		}
 	}
 
-	private AudioSource _audioSource;
-
-	private AudioSource AudioSource
+	private List<GameObject> AudioSourcePool
 	{
 		get
 		{
-			if (_audioSource == null)
+			if (_audioSourcePool == null)
 			{
-				_audioSource = GetComponent<AudioSource> ();
+				_audioSourcePool = new List<GameObject> ();
 			}
 
-			return _audioSource;
+			return _audioSourcePool;
+		}
+	}
+
+	private AudioSource GetPooledAudioSource ()
+	{
+		GameObject freeAudioSource = AudioSourcePool.Find (src => !src.GetComponent<AudioSource> ().isPlaying);
+
+		if (freeAudioSource == null)
+		{
+			freeAudioSource = Instantiate (_audioSourcePrefab, transform) as GameObject;
+			AudioSource freeSource = freeAudioSource.GetComponent<AudioSource> ();
+			AudioSourcePool.Add (freeAudioSource);
+		}
+
+		return freeAudioSource.GetComponent<AudioSource> ();
+	}
+
+	/// <summary>
+	/// Plays the desired audio clip
+	/// </summary>
+	/// <param name="gameClip">Game clip to play.</param>
+	public void PlayClip (GameAudioClip gameClip)
+	{
+		AudioClip audioClip = null;
+
+		if (GameAudioClips.TryGetValue (gameClip, out audioClip))
+		{
+			PlayClip (audioClip);
+		}
+		else
+		{
+			Debug.LogWarningFormat ("AudioClipManager PlayClip: No clip found for: {0}", gameClip);
+		}
+	}
+
+	/// <summary>
+	/// Plays the audio clip
+	/// </summary>
+	/// <param name="audioClip">Audio clip</param>
+	public void PlayClip (AudioClip audioClip)
+	{
+		if (audioClip != null)
+		{
+			AudioSource source = GetPooledAudioSource ();
+			source.clip = audioClip;
+			source.Play ();
 		}
 	}
 
@@ -72,19 +122,40 @@ public class AudioManager : Singleton<AudioManager>
 	/// Plays the desired audio clip
 	/// </summary>
 	/// <param name="gameClip">Game clip to play.</param>
-	public void PlayClip (GameAudioClip gameClip, bool loop =false)
+	public void PlayBackgroundClip (GameAudioClip gameClip, bool loop =false)
 	{
 		AudioClip audioClip = null;
 
 		if (GameAudioClips.TryGetValue (gameClip, out audioClip))
 		{
-			AudioSource.clip = audioClip;
-			AudioSource.loop = loop;
-			AudioSource.Play ();
+			PlayBackgroundClip (audioClip, loop);
 		}
 		else
 		{
-			Debug.LogWarningFormat ("AudioClipManager PlayClip: No clip found for: {0}", gameClip);
+			Debug.LogWarningFormat ("AudioClipManager PlayBackgroundClip: No clip found for: {0}", gameClip);
 		}
+	}
+
+	/// <summary>
+	/// Plays the audio clip in the background. Stops previous clip if there is any.
+	/// </summary>
+	/// <param name="audioClip">Audio clip.</param>
+	/// <param name="loop">If set to <c>true</c> loop.</param>
+	public void PlayBackgroundClip (AudioClip audioClip, bool loop)
+	{
+		if (audioClip != null)
+		{
+			_backgroundAudioSource.clip = audioClip;
+			_backgroundAudioSource.loop = loop;
+			_backgroundAudioSource.Play ();
+		}
+	}
+
+	/// <summary>
+	/// Stops the background clip.
+	/// </summary>
+	public void StopBackgroundClip ()
+	{
+		_backgroundAudioSource.Stop ();
 	}
 }
