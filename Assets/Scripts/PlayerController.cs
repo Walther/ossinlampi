@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
@@ -18,6 +18,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float 		controlForce 		= 4.0f;
 
 	private float		_currentHp;
+
+	private void Awake ()
+	{
+		_currentHp = maxHp;
+	}
 
     private void Start ()
     {
@@ -80,7 +85,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         Fire(20f + 90f*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
     }
 
-    private void Fire(float angle, float power)
+    private void Fire (float angle, float power)
     {        
 		if (IsAlive ())
 		{

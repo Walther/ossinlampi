@@ -60,9 +60,6 @@ public class GameManager : Singleton<GameManager>
 		else if (_currentState == GameState.START_MENU &&
 			newState == GameState.PLAYING)
 		{
-			// Reset the player
-			CurrentPlayer.Respawn ();
-
 			// Set score to 0
 			_gameUIView.SetScore (0);
 
@@ -84,6 +81,12 @@ public class GameManager : Singleton<GameManager>
 		else if (_currentState == GameState.GAME_OVER &&
 			newState == GameState.START_MENU)
 		{
+			// Clear any ongoing waves
+			WaveManager.Instance.ClearWaves ();
+
+			// Reset the player
+			CurrentPlayer.Respawn ();
+
 			// Transition start menu out and game UI in
 			_highscoreUIView
 				.TransitionOut ()
