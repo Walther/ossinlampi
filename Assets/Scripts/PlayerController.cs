@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	        cannonball.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
             Vector3 newRot = new Vector3(cannonPivot.rotation.eulerAngles.x, 0f, angle - 90f);
             cannonPivot.rotation = Quaternion.Euler(newRot);
-			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.PLAYER_FIRE);
+			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.PLAYER_CANNON_FIRE);
 		}
     }
 }

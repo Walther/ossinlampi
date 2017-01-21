@@ -8,8 +8,9 @@ public class AudioManager : Singleton<AudioManager>
 	public enum GameAudioClip
 	{
 		MENU_BACKGROUND_MUSIC,
+		GAME_BACKGROUND_MUSIC,
 		GAME_START_SOUND,
-		PLAYER_FIRE
+		PLAYER_CANNON_FIRE
 	}
 
 	[System.Serializable]
@@ -145,6 +146,13 @@ public class AudioManager : Singleton<AudioManager>
 	{
 		if (audioClip != null)
 		{
+			if (_backgroundAudioSource.clip == audioClip &&
+				_backgroundAudioSource.loop == loop &&
+				_backgroundAudioSource.isPlaying)
+			{
+				return;
+			}
+
 			_backgroundAudioSource.clip = audioClip;
 			_backgroundAudioSource.loop = loop;
 			_backgroundAudioSource.Play ();

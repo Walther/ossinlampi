@@ -78,8 +78,8 @@ public class GameManager : Singleton<GameManager>
 				.Concat (_gameUIView.TransitionIn ())
 				.Subscribe ();
 
-			// Stop background and play game start
-			AudioManager.Instance.StopBackgroundClip ();
+			// Play game background music and game start sound
+			AudioManager.Instance.PlayBackgroundClip (AudioManager.GameAudioClip.GAME_BACKGROUND_MUSIC, true);
 			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.GAME_START_SOUND);
 
 			// Start spawning enemies
