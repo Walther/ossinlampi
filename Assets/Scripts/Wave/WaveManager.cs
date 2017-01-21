@@ -33,7 +33,7 @@ public class WaveManager : Singleton<WaveManager>
 		EnemyWave wave = new EnemyWave();
 
 		for (int i=1; i<=10; i++) {
-			var duck = Instantiate(_enemyPrefabs[0]) as EnemyControllerBase;
+            var duck = Instantiate(_enemyPrefabs[0], _waveEnemyContainer) as EnemyControllerBase;
 			wave.AddEnemy(duck);
 		}
 
