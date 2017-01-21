@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour, IDamageable
 	[Header("Cannon")]
 	public ObjectPooler cannonballPooler;
     public Transform 	cannonballSpawn;
+    public Transform    cannonPivot;
+
     public float 		controlForce 		= 4.0f;
 
 	private float		_currentHp;
@@ -72,10 +74,10 @@ public class PlayerController : MonoBehaviour, IDamageable
         float minFreq = 50f;
         float maxFreq = 400f;
         float clamped = Mathf.Clamp(voiceEvent.frequency, minFreq, maxFreq);
-        float scaled = voiceEvent.volume * 100f;
+        float scaled = voiceEvent.volume * 200f;
         Debug.Log(string.Format("freq: {0} (clamped: {2}), vol: {1} (scaled: {3})", voiceEvent.frequency, voiceEvent.volume, clamped, scaled));
 
-        Fire(90*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
+        Fire(20f + 90f*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
     }
 
     private void Fire(float angle, float power)
@@ -86,8 +88,10 @@ public class PlayerController : MonoBehaviour, IDamageable
 	        GameObject cannonball = cannonballPooler.GetPooledObject();
 	        cannonball.transform.position = cannonballSpawn.position;
 	        cannonball.transform.rotation = cannonballSpawn.transform.rotation;
-	        Vector3 force = new Vector3(0f, power * Mathf.Sin(Mathf.Deg2Rad*angle), power * Mathf.Cos(Mathf.Deg2Rad*angle));
-	        cannonball.GetComponent<Rigidbody>().AddRelativeForce(force, ForceMode.Impulse);
+            Vector3 force = new Vector3(power * Mathf.Cos(Mathf.Deg2Rad*angle), power * Mathf.Sin(Mathf.Deg2Rad*angle), 0);
+	        cannonball.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
+            Vector3 newRot = new Vector3(cannonPivot.rotation.eulerAngles.x, 0f, angle - 90f);
+            cannonPivot.rotation = Quaternion.Euler(newRot);
 		}
     }
 }
