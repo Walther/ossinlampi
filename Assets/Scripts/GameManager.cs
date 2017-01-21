@@ -50,6 +50,10 @@ public class GameManager : Singleton<GameManager>
 		else if (_currentState == GameState.START_MENU &&
 			newState == GameState.PLAYING)
 		{
+			// Set score to 0
+			_gameUIView.SetScore (0);
+
+			// Transition start menu out and game UI in
 			_startMenuUIView
 				.TransitionOut ()
 				.Concat (_gameUIView.TransitionIn ())
