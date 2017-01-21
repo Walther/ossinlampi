@@ -32,24 +32,35 @@ public class EnemyControllerBase : MonoBehaviour
 		// If the enemy collided with a projectile take damage
 		if (other.gameObject.CompareTag ("Projectile"))
 		{
-			Debug.LogFormat ("Take damage");
-			_hp -= _damageTaken;
-
-			if (_hp <= 0.0f)
-			{
-				Die ();
-			}
+			TakeDamage (_damageTaken);
 		}
 		// If the enemy collided with a player give damage
 		else if (other.gameObject.CompareTag ("Player"))
 		{
-			Debug.Log ("Cause damage");
+			GiveDamage (_damageGiven);
 		}
+	}
+
+	virtual protected void TakeDamage (float damage)
+	{
+		Debug.LogFormat ("EnemyControllerBase TakeDamage: {0}", damage);
+
+		_hp -= damage;
+
+		if (_hp <= 0.0f)
+		{
+			Die ();
+		}
+	}
+
+	virtual protected void GiveDamage (float damage)
+	{
+		Debug.LogFormat ("EnemyControllerBase GiveDamage: {0}", damage);
 	}
 
 	virtual protected void Die ()
 	{
-		Debug.Log ("Dieing");
-		GameObject.Destroy (this);
+		Debug.Log ("EnemyControllerBase Die: Dieing");
+		GameObject.Destroy (this.gameObject);
 	}
 }
