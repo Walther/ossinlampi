@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(MeshRenderer))]
 public class EnemyControllerBase : MonoBehaviour, IDamageable
 {
 	[Header("Movement")]
@@ -16,6 +17,10 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	protected AudioClip _giveDamageAudioClip;
 	[SerializeField]
 	protected AudioClip _dieAudioClip;
+
+	[Header("Effects")]
+	[SerializeField]
+	protected ParticleSystem _dieEffect;
 
 	[Header("Damage Controls")]
 	[SerializeField]
@@ -35,6 +40,7 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 
 	protected Transform _targetTransform = null;
 	protected Rigidbody _enemyRigidbody = null;
+	protected MeshRenderer _enemyMeshRenderer = null;
 	protected float _currentHp = 0.0f;
 
 	virtual protected Transform TargetTransform
@@ -60,6 +66,19 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 			}
 
 			return _enemyRigidbody;
+		}
+	}
+
+	virtual protected MeshRenderer EnemyMeshRenderer
+	{
+		get
+		{
+			if (_enemyMeshRenderer == null)
+			{
+				_enemyMeshRenderer = GetComponent<MeshRenderer> ();
+			}
+
+			return _enemyMeshRenderer;
 		}
 	}
 		
@@ -120,12 +139,35 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 		Debug.LogFormat ("EnemyControllerBase GiveDamage: {0}", damage);
 		GameManager.Instance.DamagePlayer (damage);
 		AudioManager.Instance.PlayClip (_giveDamageAudioClip);
-		gameObject.SetActive (false);
+		Die ();
 	}
 
 	virtual protected void Die ()
 	{
+		// If there is an explosion animation play it
+		if (_dieEffect != null)
+		{
+			StartCoroutine (DieWithExplosion ());
+		}
+		else
+		{
+			gameObject.SetActive (false);
+		}
+	}
+
+	private IEnumerator DieWithExplosion ()
+	{
+		EnemyMeshRenderer.enabled = false;
+		_dieEffect.gameObject.SetActive (true);
+		_dieEffect.Emit (1);
+		
+		yield return new WaitForSeconds (_dieEffect.main.duration);
+
+		_dieEffect.Clear (true);
+		_dieEffect.gameObject.SetActive (true);
+
 		gameObject.SetActive (false);
+		EnemyMeshRenderer.enabled = true;
 	}
 
 	virtual public bool IsAlive ()

@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private bool IsAlive ()
 	{
-		return _currentHp > 0.0f;
+		return _currentHp > 0.0f && gameObject.activeInHierarchy;
 	}
 
     private void Fire ()

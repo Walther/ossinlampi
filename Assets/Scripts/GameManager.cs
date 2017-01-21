@@ -20,8 +20,12 @@ public class GameManager : Singleton<GameManager>
 	private GameUIView 			_gameUIView			= null;
 	[SerializeField]
 	private HighscoreUIView 	_highscoreUIView	= null;
+
+	[Header("General")]
 	[SerializeField]
 	private PlayerController	_player				= null;
+	[SerializeField]
+	private ParticleSystem		_fireworks			= null;
 
 	private GameState 			_currentState 		= GameState.NONE;
 	private int					_currentScore		= 0;
@@ -89,10 +93,17 @@ public class GameManager : Singleton<GameManager>
 				.TransitionOut ()
 				.Concat (_highscoreUIView.TransitionIn ())
 				.Subscribe ();
+			
+			_highscoreUIView.SetScore (_currentScore);
+			_fireworks.gameObject.SetActive (true);
+			_fireworks.Play (true);
 		}
 		else if (_currentState == GameState.GAME_OVER &&
 			newState == GameState.START_MENU)
 		{
+			_fireworks.gameObject.SetActive (false);
+			_fireworks.Clear ();
+
 			// Clear any ongoing waves
 			EnemyManager.Instance.ClearEnemies ();
 
