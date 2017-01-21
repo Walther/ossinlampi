@@ -68,6 +68,10 @@ public class GameManager : Singleton<GameManager>
 				.TransitionOut ()
 				.Concat (_gameUIView.TransitionIn ())
 				.Subscribe ();
+
+			// Stop background and play game start
+			AudioManager.Instance.StopBackgroundClip ();
+			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.GAME_START_SOUND);
 		}
 		// If the player died i.e. game over
 		else if (_currentState == GameState.PLAYING &&
@@ -92,6 +96,9 @@ public class GameManager : Singleton<GameManager>
 				.TransitionOut ()
 				.Concat (_startMenuUIView.TransitionIn ())
 				.Subscribe ();
+		
+			// Play background music
+			AudioManager.Instance.PlayBackgroundClip (AudioManager.GameAudioClip.MENU_BACKGROUND_MUSIC, true);
 		}
 
 		_currentState = newState;
