@@ -5,9 +5,14 @@ using UniRx;
 
 public class WaveManager : Singleton<WaveManager>
 {
+	
 	[SerializeField]
-	[Tooltip("Enemy spawning point")]
-	private Transform _enemySpawningPoint;
+	[Tooltip("Enemy spawning area center")]
+	private Transform _spawningAreaCenter;
+	[SerializeField]
+	[Tooltip("Enemy spawning area radius")]
+	private float _spawningAreaRadius = 20.0f;
+
 	[SerializeField]
 	[Tooltip("Container for the enemies in the wave")]
 	private Transform _waveEnemyContainer;
@@ -54,7 +59,13 @@ public class WaveManager : Singleton<WaveManager>
 	{
 		for (int i = 0; i < numEnemies; ++i)
 		{
-			EnemyControllerBase duck = Instantiate (_enemyPrefabs[0], _waveEnemyContainer) as EnemyControllerBase;
+			Vector2 randomOffset = Random.insideUnitCircle * _spawningAreaRadius;
+			Vector3 spawningPosition = _spawningAreaCenter.position;
+
+			spawningPosition.x += randomOffset.x;
+			spawningPosition.z = randomOffset.y;
+
+			EnemyControllerBase duck = Instantiate (_enemyPrefabs[0], spawningPosition, Quaternion.identity, _waveEnemyContainer) as EnemyControllerBase;
 			_currentWave.AddEnemy (duck);
 			yield return new WaitForSeconds (waitTime);
 		}

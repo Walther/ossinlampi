@@ -2,20 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class EnemyControllerBase : MonoBehaviour, IDamageable
 {
-	protected enum MovementAxis
-	{
-		X_AXIS = 0,
-		Y_AXIS = 1,
-		Z_AXIS = 2
-	}
-
 	[Header("Movement")]
 	[SerializeField]
-	protected MovementAxis _movementAxis = MovementAxis.X_AXIS;
-	[SerializeField]
-	protected float _movementSpeed = -2.0f;
+	protected float _movementSpeed = 2.0f;
 
 	[Header("Audio")]
 	[SerializeField]
@@ -38,13 +30,43 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	[Tooltip ("Damage given to player on collision")]
 	protected float _damageGiven = 100.0f;
 
+	protected Transform _targetTransform = null;
+	protected Rigidbody _enemyRigidbody = null;
+
+	virtual protected Transform TargetTransform
+	{
+		get
+		{
+			if (_targetTransform == null)
+			{
+				_targetTransform = GameManager.Instance.CurrentPlayer.transform;
+			}
+
+			return _targetTransform;
+		}
+	}
+
+	virtual protected Rigidbody EnemyRigidbody
+	{
+		get
+		{
+			if (_enemyRigidbody == null)
+			{
+				_enemyRigidbody = GetComponent<Rigidbody> ();
+			}
+
+			return _enemyRigidbody;
+		}
+	}
+
 	virtual protected void FixedUpdate ()
 	{
 		if (IsAlive ())
 		{
-			Vector3 position = transform.position;
-			position[(int)_movementAxis] += Time.fixedDeltaTime * _movementSpeed;
-			transform.position = position;
+			Vector3 targetPosition = TargetTransform.position;
+			Vector3 movementDir = (targetPosition - transform.position).normalized;
+			transform.LookAt (targetPosition);
+			EnemyRigidbody.AddForce (_movementSpeed * movementDir);
 		}
 	}
 
