@@ -45,16 +45,8 @@ public class PlayerController : MonoBehaviour, IDamageable
             });
     }
 
-	private void Update () 
+    private void FixedUpdate ()
     {
-        // Acceleration
-        float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
-        body.AddRelativeForce(control*Vector3.right); 
-
-        // Steering
-        float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
-        body.AddTorque(0f, rotate, 0f);
-
         // Machine guns
         if (CrossPlatformInputManager.GetButton("Fire Left"))
         {
@@ -65,6 +57,19 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             _rightGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right"));
         }
+    }
+
+	private void Update () 
+    {
+        // Acceleration
+        float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
+        body.AddRelativeForce(control*Vector3.right); 
+
+        // Steering
+        float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
+        body.AddTorque(0f, rotate, 0f);
+
+
 	}
 
 	#region IDamageable
