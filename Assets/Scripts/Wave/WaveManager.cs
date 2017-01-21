@@ -26,7 +26,16 @@ public class WaveManager : Singleton<WaveManager>
 	public void CreateNewWave ()
 	{
 		// Destroy all children of the waveEnemyContainer
+		foreach (Transform child in transform) {
+			GameObject.Destroy(child.gameObject);
+		}
 		// Create new enemies to a new wave
+		EnemyWave wave = new EnemyWave();
+
+		for (int i=1; i<=10; i++) {
+			var duck = Instantiate(_enemyPrefabs[0]) as EnemyControllerBase;
+			wave.AddEnemy(duck);
+		}
 
 	}
 }

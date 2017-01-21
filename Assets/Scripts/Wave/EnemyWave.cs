@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class EnemyWave
 {
@@ -26,6 +27,6 @@ public class EnemyWave
 	/// <returns><c>true</c> if this wave is complete; otherwise, <c>false</c>.</returns>
 	public bool IsComplete ()
 	{
-		return false;
+		return !_enemies.Any (e => e.isAlive ());
 	}
 }

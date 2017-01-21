@@ -80,4 +80,8 @@ public class EnemyControllerBase : MonoBehaviour
 		Debug.Log ("EnemyControllerBase Die: Dieing");
 		GameObject.Destroy (this.gameObject);
 	}
+
+	public bool isAlive() {
+		return _hp > 0f;
+	}
 }
