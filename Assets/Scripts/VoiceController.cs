@@ -166,13 +166,13 @@ public class VoiceController : Singleton<VoiceController>
 
         _pitchTracker = new PitchTracker();
         _pitchTracker.SampleRate = 44100;
-        _pitchTracker.DetectLevelThreshold = 0.2f;
+        _pitchTracker.DetectLevelThreshold = 0.1f;
         _pitchTracker.PitchDetected += (sender, pitchRecord) => 
             {
                 if (pitchRecord.Pitch > 0)
                 {
                     AboveThresholdSubject.OnNext (new VoiceEvent {
-                        volume = _volume,
+                        volume = pitchRecord.Volume,
                         frequency = pitchRecord.Pitch
                     });
                 }
@@ -206,8 +206,14 @@ public class VoiceController : Singleton<VoiceController>
 //		Source.GetSpectrumData (Spectrum, 0, fftWindowType);
         Source.GetOutputData(Output, 0);
 
-        _volume = Output.Average();
-        _pitchTracker.ProcessBuffer(Output);
+        _volume = 0;
+        for (int i = 0; i < Output.Length; ++i)
+        {
+            _volume += Mathf.Abs(Output[i]);
+        }
+        _volume /= Output.Length;
+
+        _pitchTracker.ProcessBuffer(Output, _volume);
 
 
 //		float volume = Spectrum.Average ();

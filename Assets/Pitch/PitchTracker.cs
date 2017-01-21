@@ -244,7 +244,7 @@ namespace Pitch
         /// </summary>
         /// <param name="inBuffer">Input buffer. Samples must be in the range -1.0 to 1.0</param>
         /// <param name="sampleCount">Number of samples to process. Zero means all samples in the buffer</param>
-        public void ProcessBuffer(float[] inBuffer, int sampleCount = 0)
+        public void ProcessBuffer(float[] inBuffer, float volume = 0f, int sampleCount = 0)
         {
             if (inBuffer == null)
                 throw new ArgumentNullException("inBuffer", "Input buffer cannot be null");
@@ -294,7 +294,7 @@ namespace Pitch
                     }
 
                     // Log the pitch record
-                    AddPitchRecord(detectedPitch);
+                    AddPitchRecord(detectedPitch, volume);
 
                     m_curPitchSamplePos += m_samplesPerPitchBlock;
                     m_curPitchIndex++;
@@ -358,7 +358,7 @@ namespace Pitch
         /// The pitch was detected - add the record
         /// </summary>
         /// <param name="pitch"></param>
-        private void AddPitchRecord(float pitch)
+        private void AddPitchRecord(float pitch, float volume = 0f)
         {
             var midiNote = 0;
             var midiCents = 0;
@@ -371,6 +371,7 @@ namespace Pitch
             record.Pitch = pitch;
             record.MidiNote = midiNote;
             record.MidiCents = midiCents;
+            record.Volume = volume;
 
             m_curPitchRecord = record;
 
@@ -410,6 +411,12 @@ namespace Pitch
             /// The offset from the detected MIDI note in cents, from -50 to +50.
             /// </summary>
             public int MidiCents { get; set; }
+
+            public float Volume
+            {
+                get;
+                set;
+            }
         }
     }
 }
