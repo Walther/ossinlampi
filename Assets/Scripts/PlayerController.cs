@@ -20,6 +20,10 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private float		_currentHp;
 
+    [Header("Machine guns")]
+    public MachineGun  _leftGun;
+    public MachineGun  _rightGun;
+
 	public float CurrentHp
 	{
 		get
@@ -43,32 +47,23 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private void Update () 
     {
+        // Acceleration
         float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
+        body.AddRelativeForce(control*Vector3.right); 
+
+        // Steering
         float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
-//        float keepUpright = transform.rotation.eulerAngles;
-        float uprightX = 0f;
-
-        float deltaAngle = AngleUtils.ClampAngle180(body.transform.localRotation.eulerAngles.x);
-
-
-
-//        Debug.Log(string.Format("original: {0}, originalClamped: {1}, deltaClamped: {2}", body.transform.localRotation.eulerAngles.x, xAngle, deltaAngle));
-
-
-        body.AddRelativeForce(control*Vector3.right);
-
-        Vector3 targetEuler = body.transform.localRotation.eulerAngles;
-        targetEuler.x = 0;
-
-//        body.AddRelativeTorque(deltaAngle, 0f, 0f);
-//        body.transform.localRotation = Quaternion.RotateTowards(body.transform.localRotation, Quaternion.Euler(targetEuler), 100f);
-            
-
         body.AddTorque(0f, rotate, 0f);
 
-        if (Input.GetButtonDown("Fire1"))
+        // Machine guns
+        if (CrossPlatformInputManager.GetButton("Fire Left"))
         {
-            Fire();
+            _leftGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Left"), CrossPlatformInputManager.GetAxis("Vertical Left"));
+        }
+
+        if (CrossPlatformInputManager.GetButton("Fire Right"))
+        {
+            _rightGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right"));
         }
 	}
 
