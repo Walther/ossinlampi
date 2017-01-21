@@ -55,6 +55,9 @@ public class GameManager : Singleton<GameManager>
 			_startMenuUIView
 				.TransitionIn ()
 				.Subscribe ();
+
+			// Play background music
+			AudioManager.Instance.PlayBackgroundClip (AudioManager.GameAudioClip.MENU_BACKGROUND_MUSIC, true);
 		}
 		// Start menu play was pressed - transition to playing
 		else if (_currentState == GameState.START_MENU &&

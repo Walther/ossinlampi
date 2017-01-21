@@ -78,9 +78,9 @@ public class AudioManager : Singleton<AudioManager>
 
 		if (freeAudioSource == null)
 		{
-			GameObject newAudioSource = Instantiate (_audioSourcePrefab) as GameObject;
-			AudioSource freeSource = newAudioSource.GetComponent<AudioSource> ();
-			AudioSourcePool.Add (newAudioSource);
+			freeAudioSource = Instantiate (_audioSourcePrefab, transform) as GameObject;
+			AudioSource freeSource = freeAudioSource.GetComponent<AudioSource> ();
+			AudioSourcePool.Add (freeAudioSource);
 		}
 
 		return freeAudioSource.GetComponent<AudioSource> ();

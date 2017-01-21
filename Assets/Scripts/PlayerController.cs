@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void Fire (float angle, float power)
     {        
-		if (IsAlive ())
+		if (IsAlive () && GameManager.Instance.CurrentState == GameState.PLAYING)
 		{
 	        Debug.LogFormat ("PlayerController Fire: Shooting with angle {0}, power {1}", angle, power);
 	        GameObject cannonball = cannonballPooler.GetPooledObject();
