@@ -44,7 +44,7 @@ namespace UnityStandardAssets.CrossPlatformInput
 		Vector2 m_PreviousTouchPos; // swipe style control touch
 
 
-#if !UNITY_EDITOR
+#if true || !UNITY_EDITOR
     private Vector3 m_Center;
     private Image m_Image;
 #else
@@ -58,7 +58,7 @@ namespace UnityStandardAssets.CrossPlatformInput
 
         void Start()
         {
-#if !UNITY_EDITOR
+#if true || !UNITY_EDITOR
             m_Image = GetComponent<Image>();
             m_Center = m_Image.transform.position;
 #endif
@@ -102,7 +102,7 @@ namespace UnityStandardAssets.CrossPlatformInput
 		{
 			m_Dragging = true;
 			m_Id = data.pointerId;
-#if !UNITY_EDITOR
+#if true || !UNITY_EDITOR
         if (controlStyle != ControlStyle.Absolute )
             m_Center = data.position;
 #endif
@@ -116,7 +116,7 @@ namespace UnityStandardAssets.CrossPlatformInput
 			}
 			if (Input.touchCount >= m_Id + 1 && m_Id != -1)
 			{
-#if !UNITY_EDITOR
+#if true || !UNITY_EDITOR 
 
             if (controlStyle == ControlStyle.Swipe)
             {
