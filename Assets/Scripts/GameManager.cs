@@ -20,6 +20,8 @@ public class GameManager : Singleton<GameManager>
 	private GameUIView 			_gameUIView			= null;
 	[SerializeField]
 	private HighscoreUIView 	_highscoreUIView	= null;
+	[SerializeField]
+	private PlayerController	_player				= null;
 
 	private GameState 			_currentState 		= GameState.NONE;
 
@@ -28,6 +30,14 @@ public class GameManager : Singleton<GameManager>
 		get
 		{
 			return _currentState;
+		}
+	}
+
+	public PlayerController CurrentPlayer
+	{
+		get
+		{
+			return _player;
 		}
 	}
 
@@ -50,6 +60,9 @@ public class GameManager : Singleton<GameManager>
 		else if (_currentState == GameState.START_MENU &&
 			newState == GameState.PLAYING)
 		{
+			// Reset the player
+			CurrentPlayer.Respawn ();
+
 			// Set score to 0
 			_gameUIView.SetScore (0);
 
@@ -57,6 +70,24 @@ public class GameManager : Singleton<GameManager>
 			_startMenuUIView
 				.TransitionOut ()
 				.Concat (_gameUIView.TransitionIn ())
+				.Subscribe ();
+		}
+		// If the player died i.e. game over
+		else if (_currentState == GameState.PLAYING &&
+			newState == GameState.GAME_OVER)
+		{
+			_gameUIView
+				.TransitionOut ()
+				.Concat (_highscoreUIView.TransitionIn ())
+				.Subscribe ();
+		}
+		else if (_currentState == GameState.GAME_OVER &&
+			newState == GameState.START_MENU)
+		{
+			// Transition start menu out and game UI in
+			_highscoreUIView
+				.TransitionOut ()
+				.Concat (_startMenuUIView.TransitionIn ())
 				.Subscribe ();
 		}
 
@@ -69,6 +100,7 @@ public class GameManager : Singleton<GameManager>
 		{
 			if (!WaveManager.Instance.HasActiveWave)
 			{
+				Debug.Log ("GameManager Update: Creating a new wave");
 				WaveManager.Instance.CreateNewWave ();
 			}
 		}

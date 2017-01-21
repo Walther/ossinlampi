@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyControllerBase : MonoBehaviour
+public class EnemyControllerBase : MonoBehaviour, IDamageable
 {
 	protected enum MovementAxis
 	{
@@ -62,7 +62,9 @@ public class EnemyControllerBase : MonoBehaviour
 		}
 	}
 
-	virtual protected void TakeDamage (float damage)
+	#region IDamageable
+
+	virtual public void TakeDamage (float damage)
 	{
 		Debug.LogFormat ("EnemyControllerBase TakeDamage: {0}", damage);
 
@@ -74,14 +76,17 @@ public class EnemyControllerBase : MonoBehaviour
 		}
 	}
 
+	#endregion
+
 	virtual protected void GiveDamage (float damage)
 	{
 		Debug.LogFormat ("EnemyControllerBase GiveDamage: {0}", damage);
+		GameManager.Instance.CurrentPlayer.TakeDamage (damage);
+		GameObject.Destroy (this.gameObject);
 	}
 
 	virtual protected void Die ()
 	{
-		Debug.Log ("EnemyControllerBase Die: Dieing");
 		GameObject.Destroy (this.gameObject);
 	}
 

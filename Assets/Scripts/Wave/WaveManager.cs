@@ -33,10 +33,10 @@ public class WaveManager : Singleton<WaveManager>
 		}
 
 		_currentWave = new EnemyWave ();
-		StartCoroutine (CoCreateNewWave (5, 1.0f));
+		StartCoroutine (CreateNewWave (5, 1.0f));
 	}
 
-	private IEnumerator CoCreateNewWave (int numEnemies, float waitTime)
+	private IEnumerator CreateNewWave (int numEnemies, float waitTime)
 	{
 		for (int i = 0; i < numEnemies; ++i)
 		{

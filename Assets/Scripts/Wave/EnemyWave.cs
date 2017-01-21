@@ -35,7 +35,7 @@ public class EnemyWave
 	/// <returns><c>true</c> if this wave is complete; otherwise, <c>false</c>.</returns>
 	public bool IsComplete ()
 	{
-		return !_enemies.Any (e => e.IsAlive ());
+		return !_enemies.Any (e => e != null && e.IsAlive ());
 	}
 
 	/// <summary>
@@ -47,7 +47,10 @@ public class EnemyWave
 
 		for (int i = 0; i < numEnemies; ++i)
 		{
-			GameObject.Destroy (_enemies[i].gameObject);
+			if (_enemies[i] != null && _enemies[i].gameObject != null)
+			{
+				GameObject.Destroy (_enemies[i].gameObject);
+			}
 		}
 
 		_enemies.Clear ();
