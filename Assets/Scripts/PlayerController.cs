@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private float		_currentHp;
 
+	private void Awake ()
+	{
+		_currentHp = maxHp;
+	}
+
     private void Start ()
     {
         VoiceController.Instance.AboveThresholdStream.Throttle(System.TimeSpan.FromMilliseconds(100)).Subscribe(voiceEvent =>
@@ -75,10 +80,10 @@ public class PlayerController : MonoBehaviour, IDamageable
         float scaled = voiceEvent.volume * 100f;
         Debug.Log(string.Format("freq: {0} (clamped: {2}), vol: {1} (scaled: {3})", voiceEvent.frequency, voiceEvent.volume, clamped, scaled));
 
-        Fire(90*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
+        Fire (90 * (clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
     }
 
-    private void Fire(float angle, float power)
+    private void Fire (float angle, float power)
     {        
 		if (IsAlive ())
 		{

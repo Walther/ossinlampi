@@ -36,6 +36,20 @@ public class WaveManager : Singleton<WaveManager>
 		StartCoroutine (CreateNewWave (5, 1.0f));
 	}
 
+	public void ClearWaves ()
+	{
+		// Stop any possible spawning routines
+		StopAllCoroutines ();
+
+		// Clear all enemies from waves
+		if (_currentWave != null)
+		{
+			_currentWave.ClearEnemies ();
+		}
+
+		_currentWave = null;
+	}
+
 	private IEnumerator CreateNewWave (int numEnemies, float waitTime)
 	{
 		for (int i = 0; i < numEnemies; ++i)
