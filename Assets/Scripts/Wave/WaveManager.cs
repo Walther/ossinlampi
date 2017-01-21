@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 public class WaveManager : Singleton<WaveManager>
 {
@@ -25,19 +26,23 @@ public class WaveManager : Singleton<WaveManager>
 
 	public void CreateNewWave ()
 	{
-		// Destroy all children of the waveEnemyContainer
-        foreach (Transform child in _waveEnemyContainer) {
-			GameObject.Destroy(child.gameObject);
-		}
-		// Create new enemies to a new wave
-		EnemyWave wave = new EnemyWave();
-
-		for (int i=1; i<=10; i++) {
-            var duck = Instantiate(_enemyPrefabs[0], _waveEnemyContainer) as EnemyControllerBase;
-			wave.AddEnemy(duck);
+		// Destroy all enemeis from the current wave
+		if (_currentWave != null)
+		{
+			_currentWave.ClearEnemies ();
 		}
 
-        _currentWave = wave;
+		_currentWave = new EnemyWave ();
+		StartCoroutine (CoCreateNewWave (5, 1.0f));
+	}
 
+	private IEnumerator CoCreateNewWave (int numEnemies, float waitTime)
+	{
+		for (int i = 0; i < numEnemies; ++i)
+		{
+			EnemyControllerBase duck = Instantiate (_enemyPrefabs[0], _waveEnemyContainer) as EnemyControllerBase;
+			_currentWave.AddEnemy (duck);
+			yield return new WaitForSeconds (waitTime);
+		}
 	}
 }

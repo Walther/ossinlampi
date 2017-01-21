@@ -8,6 +8,14 @@ public class EnemyWave
 	[SerializeField]
 	private List<EnemyControllerBase> _enemies;
 
+	public int NumEnemies
+	{
+		get
+		{
+			return _enemies == null ? 0 : _enemies.Count;
+		}
+	}
+
 	public EnemyWave ()
 	{
 		_enemies = new List<EnemyControllerBase> ();
@@ -28,5 +36,20 @@ public class EnemyWave
 	public bool IsComplete ()
 	{
 		return !_enemies.Any (e => e.IsAlive ());
+	}
+
+	/// <summary>
+	/// Clears the enemies from the wave
+	/// </summary>
+	public void ClearEnemies ()
+	{
+		int numEnemies = _enemies.Count;
+
+		for (int i = 0; i < numEnemies; ++i)
+		{
+			GameObject.Destroy (_enemies[i].gameObject);
+		}
+
+		_enemies.Clear ();
 	}
 }

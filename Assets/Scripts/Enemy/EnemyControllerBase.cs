@@ -50,8 +50,6 @@ public class EnemyControllerBase : MonoBehaviour
 
 	virtual protected void OnCollisionEnter (Collision other)
 	{
-		Debug.LogFormat ("EnemyControllerBase OnCollisionEnter: {0}", other.gameObject.tag);
-
 		// If the enemy collided with a projectile take damage
 		if (other.gameObject.CompareTag ("Projectile"))
 		{
