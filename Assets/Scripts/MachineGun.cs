@@ -29,6 +29,7 @@ public class MachineGun : MonoBehaviour
         bullet.GetComponent<TrailRenderer>().Clear();
         Vector3 direction = transform.right * y + transform.up * x;
         direction.Normalize();
+        direction += Random.insideUnitSphere / 4f;
 //        direction += transform.forward * 0.2f;
         lastForce = direction * BulletInitialForce;
         bullet.GetComponent<Rigidbody>().AddForce(lastForce);
