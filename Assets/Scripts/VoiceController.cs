@@ -4,9 +4,10 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 using System.Linq;
 using UniRx;
+using Pitch;
 
 [RequireComponent(typeof(AudioSource))]
-public class VoiceController : MonoBehaviour
+public class VoiceController : Singleton<VoiceController>
 {
 	public class VoiceEvent
 	{
@@ -49,9 +50,16 @@ public class VoiceController : MonoBehaviour
 	[Tooltip("Microphone sampling frequency")]
 	public int samplingFrequency = 44100;
 
+    [Header("Pitch detection")]
+    [Tooltip("Pitch detection window size")]
+    public int outputBufferSize = 512;
+
 	[Header("FFT")]
 	[Tooltip("FFT spectrum window size")]
 	public int spectrumWindowSize = 512;
+
+
+
 	[Tooltip("FFT window type")]
 	public FFTWindow fftWindowType = FFTWindow.Hamming;
 	[Tooltip("FFT spectrum scale factor for debug")]
@@ -74,9 +82,16 @@ public class VoiceController : MonoBehaviour
 	#region private fields
 
 	private float[] _spectrum = null;
+
+    private float[] _output = null;
+
 	private AudioSource _src = null;
 	private float _timeSinceRestart = 0;
 	private Subject<VoiceEvent> _aboveThresholdSubject = null;
+
+    private PitchTracker _pitchTracker;
+
+    private float _volume = 0;
 
 	private AudioSource Source
 	{
@@ -112,6 +127,19 @@ public class VoiceController : MonoBehaviour
 		}
 	}
 
+    private float[] Output
+    {
+        get
+        {
+            if (_output == null)
+            {
+                _output = new float[outputBufferSize];
+            }
+
+            return _output;
+        }
+    }
+
 	private Subject<VoiceEvent> AboveThresholdSubject
 	{
 		get
@@ -135,6 +163,20 @@ public class VoiceController : MonoBehaviour
 			RestartMicrophoneListener ();
 			StartMicrophoneListener ();
 		}
+
+        _pitchTracker = new PitchTracker();
+        _pitchTracker.SampleRate = 44100;
+        _pitchTracker.DetectLevelThreshold = 0.1f;
+        _pitchTracker.PitchDetected += (sender, pitchRecord) => 
+            {
+                if (pitchRecord.Pitch > 0)
+                {
+                    AboveThresholdSubject.OnNext (new VoiceEvent {
+                        volume = pitchRecord.Volume,
+                        frequency = pitchRecord.Pitch
+                    });
+                }
+            };
 	}
 		
 	private void Update ()
@@ -161,33 +203,45 @@ public class VoiceController : MonoBehaviour
 		// Can choose to unmute sound from inspector if desired
 		DisableSound (!disableOutputSound);
 
-		Source.GetSpectrumData (Spectrum, 0, fftWindowType);
-		float volume = Spectrum.Average ();
+//		Source.GetSpectrumData (Spectrum, 0, fftWindowType);
+        Source.GetOutputData(Output, 0);
 
-		if (volume > shootingThreshold)
-		{
-			// Calculate frequency and send an event/publish to subject
-			AboveThresholdSubject.OnNext (new VoiceEvent {
-				volume = volume,
-				frequency = GetSpectrumMaxFrequency ()
-			});
-		}
+        _volume = 0;
+        for (int i = 0; i < Output.Length; ++i)
+        {
+            _volume += Mathf.Abs(Output[i]);
+        }
+        _volume /= Output.Length;
 
-		// Log to debug if debug is enabled
-		if (enableDebug)
-		{
-			for (int i = 1; i < spectrumWindowSize-1; ++i)
-			{
-				Debug.DrawLine (
-					new Vector3(Mathf.Log(i-1), (debugScale * Spectrum[i]), 0),
-					new Vector3(Mathf.Log(i), (debugScale * Spectrum[i + 1]), 0),
-					Color.red
-				);
-			}
+        _pitchTracker.ProcessBuffer(Output, _volume);
 
-			Debug.LogFormat ("Volume: {0} - Above threshold: {1}", volume, volume > shootingThreshold);
-			Debug.LogFormat ("Frequency: {0} Hz", GetSpectrumMaxFrequency ());
-		}
+
+//		float volume = Spectrum.Average ();
+//
+//		if (volume > shootingThreshold)
+//		{
+//			// Calculate frequency and send an event/publish to subject
+//			AboveThresholdSubject.OnNext (new VoiceEvent {
+//				volume = volume,
+//				frequency = GetSpectrumMaxFrequency ()
+//			});
+//		}
+//
+//		// Log to debug if debug is enabled
+//		if (enableDebug)
+//		{
+//			for (int i = 1; i < spectrumWindowSize-1; ++i)
+//			{
+//				Debug.DrawLine (
+//					new Vector3(Mathf.Log(i-1), (debugScale * Spectrum[i]), 0),
+//					new Vector3(Mathf.Log(i), (debugScale * Spectrum[i + 1]), 0),
+//					Color.red
+//				);
+//			}
+//
+//			Debug.LogFormat ("Volume: {0} - Above threshold: {1}", volume, volume > shootingThreshold);
+//			Debug.LogFormat ("Frequency: {0} Hz", GetSpectrumMaxFrequency ());
+//		}
 	}
 
 	public float GetSpectrumMaxFrequency ()
