@@ -42,6 +42,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         float deltaAngle = AngleUtils.ClampAngle180(body.transform.localRotation.eulerAngles.x);
 
+        Debug.Log(string.Format("left: ({0},{1}), right: ({2},{3})", CrossPlatformInputManager.GetAxis("Horizontal Left"), CrossPlatformInputManager.GetAxis("Vertical Left"), CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right")));
+
+
 
 
 //        Debug.Log(string.Format("original: {0}, originalClamped: {1}, deltaClamped: {2}", body.transform.localRotation.eulerAngles.x, xAngle, deltaAngle));
@@ -58,10 +61,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         body.AddTorque(0f, rotate, 0f);
 
-        if (Input.GetButtonDown("Fire1"))
-        {
-            Fire();
-        }
+
 	}
 
 	#region IDamageable
