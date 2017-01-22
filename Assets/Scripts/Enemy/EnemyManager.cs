@@ -272,6 +272,8 @@ public class EnemyManager : Singleton<EnemyManager>
 		go.transform.position = spawningPosition;
 		go.transform.rotation = Quaternion.identity;
 		EnemyControllerBase enemyControllerBase = go.GetComponent<EnemyControllerBase> ();
+		float scale = Random.Range (0.5f, 3.0f);
+		enemyControllerBase.ScaleValues (scale);
 
 		if (enemyControllerBase != null)
 		{

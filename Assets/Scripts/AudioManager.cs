@@ -161,6 +161,28 @@ public class AudioManager : Singleton<AudioManager>
 	}
 
 	/// <summary>
+	/// Pauses the background clip.
+	/// </summary>
+	public void PauseBackgroundClip ()
+	{
+		if (_backgroundAudioSource.isPlaying)
+		{
+			_backgroundAudioSource.Pause ();
+		}
+	}
+
+	/// <summary>
+	/// Unpauses the background clip.
+	/// </summary>
+	public void UnPauseBackgroundClip ()
+	{
+		if (_backgroundAudioSource.isPlaying)
+		{
+			_backgroundAudioSource.UnPause ();
+		}
+	}
+
+	/// <summary>
 	/// Stops the background clip.
 	/// </summary>
 	public void StopBackgroundClip ()

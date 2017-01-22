@@ -43,6 +43,11 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	protected MeshRenderer _enemyMeshRenderer = null;
 	protected float _currentHp = 0.0f;
 
+	protected int _originalKillScore;
+	protected float _originalMovementSpeed;
+	protected float _originalMaxHp;
+	protected Vector3 _originalScale;
+
 	virtual protected Transform TargetTransform
 	{
 		get
@@ -93,6 +98,14 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 		}
 	}
 
+	virtual protected void Awake ()
+	{
+		_originalKillScore = _killScore;
+		_originalMovementSpeed = _movementSpeed;
+		_originalMaxHp = _maxHp;
+		_originalScale = transform.localScale;
+	}
+
 	virtual protected void OnEnable ()
 	{
 		_currentHp = _maxHp;
@@ -101,10 +114,17 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	virtual protected void OnDisable ()
 	{
 		_currentHp = 0.0f;
+
+		// Reset variable values to originals
+		_killScore = _originalKillScore;
+		_maxHp = _originalMaxHp;
+		_movementSpeed = _originalMovementSpeed;
+		transform.localScale = _originalScale;
+
 		EnemyRigidbody.velocity = Vector3.zero;
 		EnemyRigidbody.angularVelocity = Vector3.zero;
 	}
-
+		
 	virtual protected void OnCollisionEnter (Collision other)
 	{
 		// If the enemy collided with a projectile take damage
@@ -115,7 +135,10 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 		// If the enemy collided with a player give damage
 		else if (other.gameObject.CompareTag ("Player"))
 		{
-			GiveDamage (_damageGiven);
+			if (GameManager.Instance.CurrentState == GameState.PLAYING)
+			{
+				GiveDamage (_damageGiven);
+			}
 		}
 	}
 
@@ -178,6 +201,20 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 
 		gameObject.SetActive (false);
 		EnemyMeshRenderer.enabled = true;
+	}
+
+	/// <summary>
+	/// Scales the variable values of the enemy. Max HP and local scale are multiplied by
+	/// the scale factor and movement speed is divided by the scale factor
+	/// </summary>
+	/// <param name="scale">Scale factor.</param>
+	virtual public void ScaleValues (float scale)
+	{
+		_killScore *= Mathf.Clamp ((int)scale, 1, int.MaxValue);
+		_maxHp *= scale;
+		_currentHp = _maxHp;
+		_movementSpeed /= scale;
+		transform.localScale *= scale;
 	}
 
 	virtual public bool IsAlive ()

@@ -18,6 +18,6 @@ public class GameUIView : UIView
 
 	public void SetHp (float hp)
 	{
-		_hpText.text = string.Format ("HP: {0}", (int)hp);
+		_hpText.text = string.Format ("HP: {0}", Mathf.Clamp ((int)hp, 0, int.MaxValue));
 	}
 }

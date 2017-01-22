@@ -9,29 +9,30 @@ using DG.Tweening;
 public class PlayerController : MonoBehaviour, IDamageable
 {
 	[Header("Player")]
-	public FloatingObject floatingObject;
-    public Rigidbody 	body;
-	public float 		maxHp				= 500.0f;
+	public FloatingObject 	floatingObject;
+    public Rigidbody 		body;
+	public float 			maxHp					= 500.0f;
 
 	[Header("Cannon")]
-	public ObjectPooler cannonballPooler;
-    public Transform 	cannonballSpawn;
-    public Transform    cannonPivot;
+	public ObjectPooler 	cannonballPooler;
+    public Transform 		cannonballSpawn;
+    public Transform  	 	cannonPivot;
 
-    public float 		controlForce 		= 4.0f;
-    public float        steerAmount         = 5f;
+    public float 			controlForce 			= 4.0f;
+    public float    	    steerAmount         	= 5f;
 
-	private float		_currentHp;
+	private float			_currentHp;
 
     [Header("Machine guns")]
-    public MachineGun  _leftGun;
-    public MachineGun  _rightGun;
+    public MachineGun  		_leftGun;
+    public MachineGun  		_rightGun;
 
 	[Header("Effects")]
 	public ParticleSystem 	_smokeParticleSystem;
 	public int 				_maxSmokeParticles 		= 200;
 
-	private float		_originalDensity = 0.0f;
+	private float			_originalDensity 		= 0.0f;
+	private bool			_deadAnimationPlayed 	= false;
 
 	public float CurrentHp
 	{
@@ -110,6 +111,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	public void Respawn ()
 	{
 		_currentHp = maxHp;
+		_deadAnimationPlayed = false;
 		floatingObject.Density = _originalDensity;
 
 		if (_smokeParticleSystem != null)
@@ -124,12 +126,21 @@ public class PlayerController : MonoBehaviour, IDamageable
 		
 	private void Die ()
 	{
+		if (_deadAnimationPlayed)
+		{
+			return;
+		}
+
+		_deadAnimationPlayed = true;
+
 		DOTween.To (() => floatingObject.Density, x => floatingObject.Density = x, 1.0f, 2.5f)
 			.OnStart (() => {
+				AudioManager.Instance.PauseBackgroundClip ();
 				AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.PLAYER_DEAD);
 			})
 			.OnComplete (() => {
 				GameManager.Instance.GoToState (GameState.GAME_OVER);
+				AudioManager.Instance.UnPauseBackgroundClip ();
 
 				if (_smokeParticleSystem != null)
 				{
