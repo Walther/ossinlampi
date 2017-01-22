@@ -10,6 +10,8 @@ public class HighscoreUIView : UIView
 	private Button _continueButton;
 	[SerializeField]
 	private Text _scoreText;
+	[SerializeField]
+	private Text _newHighscoreText;
 
 	private void Awake ()
 	{
@@ -18,8 +20,9 @@ public class HighscoreUIView : UIView
 		});
 	}
 
-	public void SetScore (int score)
+	public void SetScore (int score, int previousBest)
 	{
 		_scoreText.text = string.Format ("{0} PTS", score);
+		_newHighscoreText.gameObject.SetActive (score > previousBest);
 	}
 }
