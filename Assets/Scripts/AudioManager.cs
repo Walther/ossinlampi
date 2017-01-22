@@ -10,7 +10,8 @@ public class AudioManager : Singleton<AudioManager>
 		MENU_BACKGROUND_MUSIC,
 		GAME_BACKGROUND_MUSIC,
 		GAME_START_SOUND,
-		PLAYER_CANNON_FIRE
+		PLAYER_CANNON_FIRE,
+		PLAYER_DEAD
 	}
 
 	[System.Serializable]

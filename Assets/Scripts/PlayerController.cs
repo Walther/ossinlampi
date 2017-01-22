@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UnityStandardAssets.CrossPlatformInput;
+using WaterBuoyancy;
+using DG.Tweening;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
 	[Header("Player")]
+	public FloatingObject floatingObject;
     public Rigidbody 	body;
 	public float 		maxHp				= 500.0f;
 
@@ -28,6 +31,8 @@ public class PlayerController : MonoBehaviour, IDamageable
 	public ParticleSystem 	_smokeParticleSystem;
 	public int 				_maxSmokeParticles 		= 200;
 
+	private float		_originalDensity = 0.0f;
+
 	public float CurrentHp
 	{
 		get
@@ -39,6 +44,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	private void Awake ()
 	{
 		_currentHp = maxHp;
+		_originalDensity = floatingObject.Density;
 	}
 
     private void Start ()
@@ -88,8 +94,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 		if (_currentHp <= 0.0f)
 		{
-			gameObject.SetActive (false);
-			GameManager.Instance.GoToState (GameState.GAME_OVER);
+			Die ();				
 		}
 
 		if (_smokeParticleSystem != null)
@@ -105,6 +110,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	public void Respawn ()
 	{
 		_currentHp = maxHp;
+		floatingObject.Density = _originalDensity;
 
 		if (_smokeParticleSystem != null)
 		{
@@ -115,10 +121,29 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 		gameObject.SetActive (true);
 	}
+		
+	private void Die ()
+	{
+		DOTween.To (() => floatingObject.Density, x => floatingObject.Density = x, 1.0f, 2.5f)
+			.OnStart (() => {
+				AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.PLAYER_DEAD);
+			})
+			.OnComplete (() => {
+				GameManager.Instance.GoToState (GameState.GAME_OVER);
+
+				if (_smokeParticleSystem != null)
+				{
+					_smokeParticleSystem.gameObject.SetActive (false);
+					_smokeParticleSystem.Clear ();
+				}
+			});
+
+		//gameObject.SetActive (false);
+	}
 
 	private bool IsAlive ()
 	{
-		return _currentHp > 0.0f && gameObject.activeInHierarchy;
+		return _currentHp > 0.0f;
 	}
 
     private void Fire ()

@@ -101,6 +101,8 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	virtual protected void OnDisable ()
 	{
 		_currentHp = 0.0f;
+		EnemyRigidbody.velocity = Vector3.zero;
+		EnemyRigidbody.angularVelocity = Vector3.zero;
 	}
 
 	virtual protected void OnCollisionEnter (Collision other)
