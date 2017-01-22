@@ -21,12 +21,28 @@ public class EnemyManager : Singleton<EnemyManager>
 	[SerializeField]
 	[Tooltip("Enemy spawning area radius")]
 	private float _spawningAreaRadius = 20.0f;
+	[SerializeField]
+	[Tooltip("How often is the difficulty increased (sec)?")]
+	private float _difficultyIncreaseInterval = 30.0f;
+	[SerializeField]
+	[Tooltip("How often is the number of minimum ducks checked (sec)?")]
+	private float _enemyMinCheckInterval = 3.0f;
+	[SerializeField]
+	[Tooltip("What is the minimum time between duck spawns?")]
+	private float _enemyMinSpawnInterval = 0.3f;
 
 	[SerializeField]
 	[Tooltip("Container for the enemies")]
 	private Transform _enemyContainer;
 	[SerializeField]
 	private EnemyPool[] _enemyPools;
+
+	private int _currentDifficultyLevel = 1; 	// Current difficulty level
+	private int _minEnemies = 5;				// Minimum amount of enemies in the scene
+	private int _maxEnemies = 7;				// Maximum amount of enemies in the scene
+
+	private float _lastDifficultyIncreaseTime;
+	private float _lastMinCheckTime;
 
 	private List<EnemyControllerBase> _currentEnemies;
 
@@ -43,6 +59,14 @@ public class EnemyManager : Singleton<EnemyManager>
 		}
 	}
 
+	private int NumAliveEnemies
+	{
+		get
+		{
+			return CurrentEnemies.Count (ecb => ecb != null && ecb.IsAlive ());
+		}
+	}
+
 	private void Awake ()
 	{
 		// Normalize enemy pool probabilities
@@ -56,17 +80,11 @@ public class EnemyManager : Singleton<EnemyManager>
 
 		_enemyPools.OrderBy (ep => ep.probability);
 	}
-
-	Coroutine co;
-
+		
 	public void ClearEnemies ()
 	{
 		// Stop any possible spawning routines
-		if (co != null)
-		{
-			StopCoroutine (co);
-			co = null;
-		}
+		StopAllCoroutines ();
 
 		int numEnemyPools = _enemyPools.Length;
 
@@ -80,9 +98,78 @@ public class EnemyManager : Singleton<EnemyManager>
 
 	public void StartSpawningEnemies ()
 	{
-		co = StartCoroutine (CreateNewEnemies (10, 1.0f));
+		_currentDifficultyLevel = 1;
+		_minEnemies = 5;
+		_maxEnemies = 7;
+		_lastDifficultyIncreaseTime = Time.time;
+		_lastMinCheckTime = Time.time;
+
+		// Create the initial enemies
+		StartCoroutine (CreateNewEnemies (_maxEnemies, _enemyMinSpawnInterval));
+
+		// Start the difficulty increase interval
+		StartCoroutine (IncreaseDifficulty ());
+		// Start the min check interval
+		StartCoroutine (CheckMinimumNumberOfEnemies ());
 	}
 
+	/// <summary>
+	/// Increases the difficulty i.e. increases the min and max number of enemies
+	/// and spawns the enemies
+	/// </summary>
+	/// <returns>The difficulty.</returns>
+	private IEnumerator IncreaseDifficulty ()
+	{
+		while (true)
+		{
+			yield return new WaitForSeconds (_difficultyIncreaseInterval);
+
+			_currentDifficultyLevel++;
+			_minEnemies = _minEnemies + 1;
+			_maxEnemies = _maxEnemies + 3;
+
+			int numEnemiesToSpawn = _maxEnemies - NumAliveEnemies;
+
+			if (numEnemiesToSpawn > 0)
+			{
+				StartCoroutine (CreateNewEnemies (numEnemiesToSpawn, _enemyMinSpawnInterval));
+			}
+
+			_lastDifficultyIncreaseTime = Time.time;
+		}
+	}
+
+	/// <summary>
+	/// Ensures on regular intervals that there is a minimum number of enemies
+	/// in the scene.
+	/// </summary>
+	/// <returns>The minimum number of enemies.</returns>
+	private IEnumerator CheckMinimumNumberOfEnemies ()
+	{
+		while (true)
+		{
+			yield return new WaitForSeconds (_enemyMinCheckInterval);
+
+			int numAliveEnemies = NumAliveEnemies;
+
+			if (numAliveEnemies < _minEnemies)
+			{
+				for (int i = 0; i < _minEnemies-numAliveEnemies; ++i)
+				{
+					CreateNewEnemy ();
+				}
+			}
+
+			_lastMinCheckTime = Time.time;
+		}
+	}
+
+	/// <summary>
+	/// Creates a number of new enemies with the specified spawn interval
+	/// </summary>
+	/// <returns>The new enemies.</returns>
+	/// <param name="numEnemies">Number enemies.</param>
+	/// <param name="waitTime">Wait time between spawns.</param>
 	private IEnumerator CreateNewEnemies (int numEnemies, float waitTime)
 	{
 		for (int i = 0; i < numEnemies; ++i)
@@ -92,8 +179,16 @@ public class EnemyManager : Singleton<EnemyManager>
 		}
 	}
 
-	private EnemyControllerBase CreateNewEnemy ()
+	/// <summary>
+	/// Creates new enemy immediately
+	/// </summary>
+	private void CreateNewEnemy ()
 	{
+		if (NumAliveEnemies >= _maxEnemies)
+		{
+			return;
+		}
+
 		// Calculate the spawning position
 		Vector2 randomOffset = Random.insideUnitCircle * _spawningAreaRadius;
 		Vector3 spawningPosition = _spawningAreaCenter.position;
@@ -127,7 +222,5 @@ public class EnemyManager : Singleton<EnemyManager>
 		{
 			CurrentEnemies.Add (enemyControllerBase);
 		}
-
-		return enemyControllerBase;
 	}
 }
