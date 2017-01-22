@@ -24,6 +24,19 @@ namespace WaterBuoyancy
         [SerializeField]
         private float angularDragInWater = 1f;
 
+		public float Density
+		{
+			get
+			{
+				return density;
+			}
+
+			set
+			{
+				density = value;
+			}
+		}
+
         private WaterVolume water;
         private new Collider collider;
         private new Rigidbody rigidbody;
