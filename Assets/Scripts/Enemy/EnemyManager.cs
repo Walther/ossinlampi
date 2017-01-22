@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
@@ -61,6 +61,18 @@ public class EnemyManager : Singleton<EnemyManager>
 			return _currentEnemies;
 		}
 	}
+
+    public Vector3 GetClosestEnemyPosition(Vector3 position)
+    {
+        if (CurrentEnemies.Any(e => e.IsAlive()))           
+        {
+            return CurrentEnemies.Where(e => e.IsAlive()).Select(e => e.transform.position).OrderBy(pos => (pos - position).sqrMagnitude).First();
+        }
+        else
+        {
+            return position;
+        }
+    }
 
 	private List<Coroutine> Coroutines
 	{

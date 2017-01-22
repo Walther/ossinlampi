@@ -73,6 +73,10 @@ public class PlayerController : MonoBehaviour, IDamageable
         float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
         body.AddTorque(0f, rotate, 0f);
 
+        if (Input.GetKey(KeyCode.RightCommand))
+        {
+            Fire();
+        }
 
 	}
 
@@ -130,7 +134,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         float scaled = voiceEvent.volume * 200f;
         Debug.Log(string.Format("freq: {0} (clamped: {2}), vol: {1} (scaled: {3})", voiceEvent.frequency, voiceEvent.volume, clamped, scaled));
 
-        Fire (20f + 90f*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
+        Fire (90f*(clamped - minFreq)/(maxFreq - minFreq), 5f + scaled);
     }
 
     private void Fire (float angle, float power)
@@ -138,13 +142,23 @@ public class PlayerController : MonoBehaviour, IDamageable
 		if (IsAlive () && GameManager.Instance.CurrentState == GameState.PLAYING)
 		{
 	        Debug.LogFormat ("PlayerController Fire: Shooting with angle {0}, power {1}", angle, power);
+            Vector3 enemyDirection = EnemyManager.Instance.GetClosestEnemyPosition(body.transform.position) - body.transform.position;
+            enemyDirection.y = 0;
+            enemyDirection.Normalize();
+            enemyDirection *= Mathf.Cos(Mathf.Deg2Rad * angle);
+            enemyDirection.y = Mathf.Sin(Mathf.Deg2Rad * angle);                
+
 	        GameObject cannonball = cannonballPooler.GetPooledObject();
 	        cannonball.transform.position = cannonballSpawn.position;
 	        cannonball.transform.rotation = cannonballSpawn.transform.rotation;
-            Vector3 force = new Vector3(power * Mathf.Cos(Mathf.Deg2Rad*angle), power * Mathf.Sin(Mathf.Deg2Rad*angle), 0);
-	        cannonball.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
-            Vector3 newRot = new Vector3(cannonPivot.rotation.eulerAngles.x, 0f, angle - 90f);
-            cannonPivot.rotation = Quaternion.Euler(newRot);
+
+//            Vector3 force = new Vector3(power * Mathf.Cos(Mathf.Deg2Rad*angle), power * Mathf.Sin(Mathf.Deg2Rad*angle), 0);
+            Rigidbody rb = cannonball.GetComponent<Rigidbody>();
+            rb.velocity = Vector3.zero;
+
+            rb.AddForce(enemyDirection * power, ForceMode.Impulse);
+//            Vector3 newRot = new Vector3(cannonPivot.rotation.eulerAngles.x, 0f, angle - 90f);
+            cannonPivot.rotation = Quaternion.Euler(enemyDirection);
 			AudioManager.Instance.PlayClip (AudioManager.GameAudioClip.PLAYER_CANNON_FIRE);
 		}
     }
