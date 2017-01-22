@@ -58,34 +58,34 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void FixedUpdate ()
     {
-        // Machine guns
-        if (CrossPlatformInputManager.GetButton("Fire Left"))
-        {
-            _leftGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Left"), CrossPlatformInputManager.GetAxis("Vertical Left"));
-        }
+		// Handle controls if alive
+		if (IsAlive ())
+		{
+			// Machine guns
+	        if (CrossPlatformInputManager.GetButton("Fire Left"))
+	        {
+	            _leftGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Left"), CrossPlatformInputManager.GetAxis("Vertical Left"));
+	        }
 
-        if (CrossPlatformInputManager.GetButton("Fire Right"))
-        {
-            _rightGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right"));
-        }
+	        if (CrossPlatformInputManager.GetButton("Fire Right"))
+	        {
+	            _rightGun.Fire(CrossPlatformInputManager.GetAxis("Horizontal Right"), CrossPlatformInputManager.GetAxis("Vertical Right"));
+	        }
+
+			// Acceleration
+			float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
+			body.AddRelativeForce(control*Vector3.right); 
+
+			// Steering
+			float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
+			body.AddTorque(0f, rotate, 0f);
+
+			if (Input.GetKey(KeyCode.RightCommand))
+			{
+				Fire();
+			}
+		}
     }
-
-	private void Update () 
-    {
-        // Acceleration
-        float control = controlForce * CrossPlatformInputManager.GetAxis("Vertical");
-        body.AddRelativeForce(control*Vector3.right); 
-
-        // Steering
-        float rotate = steerAmount * CrossPlatformInputManager.GetAxis("Horizontal");
-        body.AddTorque(0f, rotate, 0f);
-
-        if (Input.GetKey(KeyCode.RightCommand))
-        {
-            Fire();
-        }
-
-	}
 
 	#region IDamageable
 
