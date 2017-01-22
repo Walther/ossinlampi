@@ -28,6 +28,10 @@ public class GameManager : Singleton<GameManager>
 	private PlayerController	_player				= null;
 	[SerializeField]
 	private ParticleSystem		_fireworks			= null;
+	[SerializeField]
+	private Camera				_renderCamera		= null;
+	[SerializeField]
+	private RenderTexture		_retroRenderTexture	= null;
 
 	private GameState 			_currentState 		= GameState.NONE;
 	private int					_currentScore		= 0;
@@ -149,6 +153,11 @@ public class GameManager : Singleton<GameManager>
 	{
 		_currentScore += score;
 		_gameUIView.SetScore (_currentScore);
+	}
+
+	public void SetRetroMode (bool retroOn)
+	{
+		_renderCamera.targetTexture = retroOn ? _retroRenderTexture : null;
 	}
 
 	private void ResetGameUIView ()

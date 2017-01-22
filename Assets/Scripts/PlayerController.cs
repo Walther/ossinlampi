@@ -24,6 +24,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     public MachineGun  _leftGun;
     public MachineGun  _rightGun;
 
+	[Header("Effects")]
+	public ParticleSystem 	_smokeParticleSystem;
+	public int 				_maxSmokeParticles 		= 200;
+
 	public float CurrentHp
 	{
 		get
@@ -87,6 +91,13 @@ public class PlayerController : MonoBehaviour, IDamageable
 			gameObject.SetActive (false);
 			GameManager.Instance.GoToState (GameState.GAME_OVER);
 		}
+
+		if (_smokeParticleSystem != null)
+		{
+			_smokeParticleSystem.gameObject.SetActive (CurrentHp != maxHp);
+			_smokeParticleSystem.maxParticles = (int)Mathf.Lerp (0.0f, (float)_maxSmokeParticles, 1.0f - (CurrentHp / maxHp));
+			_smokeParticleSystem.Play ();
+		}
 	}
 
 	#endregion
@@ -94,6 +105,14 @@ public class PlayerController : MonoBehaviour, IDamageable
 	public void Respawn ()
 	{
 		_currentHp = maxHp;
+
+		if (_smokeParticleSystem != null)
+		{
+			_smokeParticleSystem.gameObject.SetActive (false);
+			_smokeParticleSystem.maxParticles = 0;
+			_smokeParticleSystem.Clear ();
+		}
+
 		gameObject.SetActive (true);
 	}
 
