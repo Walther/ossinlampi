@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
@@ -44,6 +44,9 @@ public class EnemyManager : Singleton<EnemyManager>
 	private float _lastDifficultyIncreaseTime;
 	private float _lastMinCheckTime;
 
+	private List<Coroutine> _coroutines;
+	private bool _spawning = false;
+
 	private List<EnemyControllerBase> _currentEnemies;
 
 	private List<EnemyControllerBase> CurrentEnemies
@@ -71,6 +74,19 @@ public class EnemyManager : Singleton<EnemyManager>
         }
     }
 
+	private List<Coroutine> Coroutines
+	{
+		get
+		{
+			if (_coroutines == null)
+			{
+				_coroutines = new List<Coroutine> ();
+			}
+
+			return _coroutines;
+		}
+	}
+
 	private int NumAliveEnemies
 	{
 		get
@@ -93,11 +109,28 @@ public class EnemyManager : Singleton<EnemyManager>
 		_enemyPools.OrderBy (ep => ep.probability);
 	}
 		
-	public void ClearEnemies ()
+	public void ClearAndStopSpawningEnemies ()
 	{
-		// Stop any possible spawning routines
-		StopAllCoroutines ();
+		// Mark as not spawning
+		_spawning = false;
 
+		// Stop any possible spawning routines
+		if (Coroutines != null)
+		{
+			int numCoroutines = Coroutines.Count;
+
+			for (int i = 0; i < numCoroutines; ++i)
+			{
+				if (Coroutines[i] != null)
+				{
+					StopCoroutine (Coroutines[i]);
+				}
+			}
+		}
+
+		Coroutines.Clear ();
+
+		// Reset all enemies
 		int numEnemyPools = _enemyPools.Length;
 
 		for (int i = 0; i < numEnemyPools; ++i)
@@ -110,6 +143,10 @@ public class EnemyManager : Singleton<EnemyManager>
 
 	public void StartSpawningEnemies ()
 	{
+		// Mark as spawning
+		_spawning = true;
+
+		// Set initial parameters
 		_currentDifficultyLevel = 1;
 		_minEnemies = 5;
 		_maxEnemies = 7;
@@ -117,12 +154,13 @@ public class EnemyManager : Singleton<EnemyManager>
 		_lastMinCheckTime = Time.time;
 
 		// Create the initial enemies
-		StartCoroutine (CreateNewEnemies (_maxEnemies, _enemyMinSpawnInterval));
+		Coroutines.Add (StartCoroutine (CreateNewEnemies (_maxEnemies, _enemyMinSpawnInterval)));
 
 		// Start the difficulty increase interval
-		StartCoroutine (IncreaseDifficulty ());
+		Coroutines.Add (StartCoroutine (IncreaseDifficulty ()));
+
 		// Start the min check interval
-		StartCoroutine (CheckMinimumNumberOfEnemies ());
+		Coroutines.Add (StartCoroutine (CheckMinimumNumberOfEnemies ()));
 	}
 
 	/// <summary>
@@ -132,7 +170,7 @@ public class EnemyManager : Singleton<EnemyManager>
 	/// <returns>The difficulty.</returns>
 	private IEnumerator IncreaseDifficulty ()
 	{
-		while (true)
+		while (_spawning)
 		{
 			yield return new WaitForSeconds (_difficultyIncreaseInterval);
 
@@ -158,7 +196,7 @@ public class EnemyManager : Singleton<EnemyManager>
 	/// <returns>The minimum number of enemies.</returns>
 	private IEnumerator CheckMinimumNumberOfEnemies ()
 	{
-		while (true)
+		while (_spawning)
 		{
 			yield return new WaitForSeconds (_enemyMinCheckInterval);
 
@@ -186,6 +224,11 @@ public class EnemyManager : Singleton<EnemyManager>
 	{
 		for (int i = 0; i < numEnemies; ++i)
 		{
+			if (!_spawning)
+			{
+				break;
+			}
+
 			CreateNewEnemy ();
 			yield return new WaitForSeconds (waitTime);
 		}
@@ -196,7 +239,7 @@ public class EnemyManager : Singleton<EnemyManager>
 	/// </summary>
 	private void CreateNewEnemy ()
 	{
-		if (NumAliveEnemies >= _maxEnemies)
+		if (NumAliveEnemies >= _maxEnemies || !_spawning)
 		{
 			return;
 		}
@@ -232,7 +275,11 @@ public class EnemyManager : Singleton<EnemyManager>
 
 		if (enemyControllerBase != null)
 		{
-			CurrentEnemies.Add (enemyControllerBase);
+			// Do not add duplicates to CurrentEnemies list
+			if (!CurrentEnemies.Contains (enemyControllerBase))
+			{
+				CurrentEnemies.Add (enemyControllerBase);
+			}
 		}
 	}
 }

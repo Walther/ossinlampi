@@ -13,6 +13,8 @@ public enum GameState
 
 public class GameManager : Singleton<GameManager>
 {
+	private static readonly string _highscorePlayerPrefsKey = "best-highscore";
+
 	[Header("UI Views")]
 	[SerializeField]
 	private StartMenuUIView 	_startMenuUIView 	= null;
@@ -93,8 +95,20 @@ public class GameManager : Singleton<GameManager>
 				.TransitionOut ()
 				.Concat (_highscoreUIView.TransitionIn ())
 				.Subscribe ();
-			
-			_highscoreUIView.SetScore (_currentScore);
+
+			int previousBest = 0;
+
+			if (PlayerPrefs.HasKey (_highscorePlayerPrefsKey))
+			{
+				previousBest = PlayerPrefs.GetInt (_highscorePlayerPrefsKey);
+			}
+
+			if (previousBest < _currentScore)
+			{
+				PlayerPrefs.SetInt (_highscorePlayerPrefsKey, _currentScore);
+			}
+
+			_highscoreUIView.SetScore (_currentScore, previousBest);
 			_fireworks.gameObject.SetActive (true);
 			_fireworks.Play (true);
 		}
@@ -105,7 +119,7 @@ public class GameManager : Singleton<GameManager>
 			_fireworks.Clear ();
 
 			// Clear any ongoing waves
-			EnemyManager.Instance.ClearEnemies ();
+			EnemyManager.Instance.ClearAndStopSpawningEnemies ();
 
 			// Reset
 			CurrentPlayer.Respawn ();
