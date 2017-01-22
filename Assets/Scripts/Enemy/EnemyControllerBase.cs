@@ -98,6 +98,11 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 		_currentHp = _maxHp;
 	}
 
+	virtual protected void OnDisable ()
+	{
+		_currentHp = 0.0f;
+	}
+
 	virtual protected void OnCollisionEnter (Collision other)
 	{
 		// If the enemy collided with a projectile take damage
@@ -118,9 +123,9 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 	{
 		Debug.LogFormat ("EnemyControllerBase TakeDamage: {0}", damage);
 
-		_maxHp -= damage;
+		_currentHp -= damage;
 
-		if (_maxHp <= 0.0f)
+		if (_currentHp <= 0.0f)
 		{
 			AudioManager.Instance.PlayClip (_dieAudioClip);
 			GameManager.Instance.AddScore (_killScore);
@@ -172,6 +177,6 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 
 	virtual public bool IsAlive ()
 	{
-		return _maxHp > 0f && gameObject.activeInHierarchy;
+		return _currentHp > 0f;
 	}
 }

@@ -105,7 +105,7 @@ public class GameManager : Singleton<GameManager>
 			_fireworks.Clear ();
 
 			// Clear any ongoing waves
-			EnemyManager.Instance.ClearEnemies ();
+			EnemyManager.Instance.ClearAndStopSpawningEnemies ();
 
 			// Reset
 			CurrentPlayer.Respawn ();
