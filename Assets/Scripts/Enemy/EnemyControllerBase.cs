@@ -116,6 +116,9 @@ public class EnemyControllerBase : MonoBehaviour, IDamageable
 
 	virtual public void TakeDamage (float damage)
 	{
+        if (!gameObject.activeInHierarchy)
+            return;
+        
 		Debug.LogFormat ("EnemyControllerBase TakeDamage: {0}", damage);
 
 		_maxHp -= damage;

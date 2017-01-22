@@ -59,6 +59,18 @@ public class EnemyManager : Singleton<EnemyManager>
 		}
 	}
 
+    public Vector3 GetClosestEnemyPosition(Vector3 position)
+    {
+        if (CurrentEnemies.Any(e => e.IsAlive()))           
+        {
+            return CurrentEnemies.Where(e => e.IsAlive()).Select(e => e.transform.position).OrderBy(pos => (pos - position).sqrMagnitude).First();
+        }
+        else
+        {
+            return position;
+        }
+    }
+
 	private int NumAliveEnemies
 	{
 		get
