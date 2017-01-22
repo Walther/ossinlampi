@@ -39,7 +39,7 @@ public class ExplosionPhysicsForce : MonoBehaviour
             EnemyControllerBase enemy = rb.GetComponent<EnemyControllerBase>();
             if (enemy != null)
             {
-                StartCoroutine(KillWithDelay(enemy, 0.5f));
+                StartCoroutine(KillWithDelay(enemy, 0.3f));
             }
         }
     }
